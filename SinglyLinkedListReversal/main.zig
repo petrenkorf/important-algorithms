@@ -1,41 +1,89 @@
 const std = @import("std");
+const Allocator = std.mem.Allocator;
 
-const Node = struct { data: u8, next: ?*Node };
+const SinglyLinkedList = struct {
+    head: ?*Node,
+    allocator: Allocator,
+    const Node = struct { data: u32, next: ?*Node };
+
+    pub fn init(allocator: Allocator) SinglyLinkedList {
+        return .{
+            .head = null,
+            .allocator = allocator,
+        };
+    }
+
+    pub fn deinit(self: *SinglyLinkedList) void {
+        var current = self.head;
+        while (current) |cur| {
+            current = cur.next;
+            self.allocator.destroy(cur);
+        }
+        self.head = undefined;
+    }
+
+    pub fn add(self: *SinglyLinkedList, data: u32) !void {
+        const node = try self.allocator.create(Node);
+        node.* = .{
+            .next = null,
+            .data = data,
+        };
+        if (self.head == null) {
+            self.head = node;
+        } else {
+            var aux: ?*Node = self.head;
+            while (aux) |auxNode| {
+                if (auxNode.next == null) {
+                    auxNode.next = node;
+                    break;
+                }
+                aux = auxNode.next;
+            }
+        }
+    }
+
+    pub fn reverse(self: *SinglyLinkedList) void {
+        var current: ?*Node = self.head;
+        var prev: ?*Node = null;
+        var next: ?*Node = null;
+
+        while (current != null) {
+            next = current.?.next;
+            current.?.next = prev;
+            prev = current;
+            current = next;
+        }
+        self.head = prev orelse null;
+    }
+
+    pub fn printList(self: *SinglyLinkedList) void {
+        var current = self.head;
+        while (current) |c| {
+            if (c.next == null) {
+                std.debug.print("{}. \n", .{c.data});
+            } else {
+                std.debug.print("{}, ", .{c.data});
+            }
+            current = c.next;
+        }
+    }
+};
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
 
     const allocator = gpa.allocator();
+    var list = SinglyLinkedList.init(allocator);
+    defer list.deinit();
 
-    var item1 = try allocator.create(Node);
-    var item2 = try allocator.create(Node);
-    var item3 = try allocator.create(Node);
-    var item4 = try allocator.create(Node);
-    defer _ = allocator.destroy(item1);
-    defer _ = allocator.destroy(item2);
-    defer _ = allocator.destroy(item3);
-    defer _ = allocator.destroy(item4);
+    try list.add(10);
+    try list.add(5);
+    try list.add(7);
+    try list.add(1);
+    try list.add(8);
 
-    item1.* = .{ .data = 1, .next = item2 };
-    item2.* = .{ .data = 2, .next = item3 };
-    item3.* = .{ .data = 3, .next = item4 };
-    item4.* = .{ .data = 4, .next = null };
-
-    var list = item1;
-    var current: ?*Node = item1;
-    var prev: ?*Node = null;
-    var next: ?*Node = null;
-
-    std.debug.print("{}\n", .{list});
-
-    while (current != null) {
-        next = current.?.next;
-        current.?.next = prev;
-        prev = current;
-        current = next;
-    }
-    list = prev orelse item1;
-
-    std.debug.print("{}\n", .{list});
+    list.printList();
+    list.reverse();
+    list.printList();
 }
