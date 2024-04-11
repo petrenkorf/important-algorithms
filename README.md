@@ -1,8 +1,8 @@
 # important-algorithms
 A list of important algorithms to study
 
-- Singly Linked List Reversal
-- Flyod Cycle Detection Algorithm 
+- Single Linked List Reversal
+- Floyd Cycle Detection Algorithm 
 - Sliding Window
 - Binary Search
 - Kadane's Algorithm

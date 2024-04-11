@@ -29,14 +29,14 @@ prev_node = nil
 cur_node  = linked_list
 
 until cur_node.nil?
-  tmp = cur_node.next
+  tmp           = cur_node.next
   cur_node.next = prev_node
-  prev_node = cur_node
-  cur_node = tmp
+  prev_node     = cur_node
+  cur_node      = tmp
   
   # since we do not have pointers, 
   # we have to track the last old item
-  linked_list = prev_node
+  linked_list = prev_node if tmp.nil?
 end
 
 pp linked_list
