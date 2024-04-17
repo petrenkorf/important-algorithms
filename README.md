@@ -68,3 +68,4 @@ A list of important algorithms to study
 - Z Algorithm
 - Manacher's Algorithm
 - Prefix Tree
+- Longest Common Subsequence
